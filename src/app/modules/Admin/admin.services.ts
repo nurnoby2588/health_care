@@ -1,8 +1,31 @@
 import { Prisma, PrismaClient } from "../../../generated/prisma"
 import { adminSearchableField } from "./admin.constant"
 const prisma = new PrismaClient()
+
+const calculatePagination = (options: {
+    page: number,
+    limit: number,
+    sortBy: string,
+    sortOrder: string
+}) => {
+
+    const page = Number(options.page) || 1
+    const limit = Number(options.limit) || 10
+    const sortBy = options.sortBy || 'createdAt'
+    const sortOrder = options.sortOrder || 'desc'
+    const skip = (page - 1) * limit
+
+    return {
+        page,
+        limit,
+        skip,
+        sortBy,
+        sortOrder
+    }
+
+}
 const getAllFromDB = async (params: any, options: any) => {
-    const { limit, page } = options;
+    const { page, limit, skip, sortBy, sortOrder } = calculatePagination(options);
     //distracture params. saperate searchTerm from params
     const { searchTerm, ...filterData } = params
     // type sefty is give []
@@ -51,8 +74,11 @@ const getAllFromDB = async (params: any, options: any) => {
     const whereConditon: Prisma.AdminWhereInput = { AND: andCondition }
     const result = await prisma.admin.findMany({
         where: whereConditon,
-        skip: (Number(page) - 1) * limit,
-        take: Number(limit)
+        skip,
+        take: limit,
+        orderBy: {
+            [sortBy]: sortOrder
+        }
 
     });
     return result
