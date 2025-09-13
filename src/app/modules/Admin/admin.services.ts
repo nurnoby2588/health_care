@@ -1,6 +1,8 @@
 import { Prisma, PrismaClient } from "../../../generated/prisma"
 const prisma = new PrismaClient()
 const getAllFromDB = async (params: any) => {
+    //distracture params. saperate searchTerm from params
+    const { searchTerm, ...filterData } = params
     // type sefty is give []
     const andCondition: Prisma.AdminWhereInput[] = []
     const adminSearchableFielda = ['name', 'email']
@@ -27,6 +29,17 @@ const getAllFromDB = async (params: any) => {
                 [field]: {
                     contains: params.searchTerm,
                     mode: 'insensitive'
+                }
+            }))
+        })
+    }
+    if (Object.keys(filterData).length > 0) {
+
+        andCondition.push({
+            // transfer object to array using Object.keys()
+            AND:Object.keys(filterData).map(key=>({
+                [key]:{
+                    equals: filterData[key]
                 }
             }))
         })
