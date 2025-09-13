@@ -1,9 +1,11 @@
 import { Request, Response } from "express";
 import { adminServies } from "./admin.services";
+import pick from "../../../Shared/pick";
 
 const getAllFromDB = async (req: Request, res: Response) => {
+    const fillterData = pick(req.query, ['name', 'email', 'contactNumber', 'searchTerm'])
     try {
-        const result = await adminServies.getAllFromDB(req.query);
+        const result = await adminServies.getAllFromDB(fillterData);
         res.status(200).json({
             success: true,
             message: "Admin data fetched",
