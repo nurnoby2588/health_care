@@ -2,18 +2,21 @@ import { Request, Response } from "express";
 import { adminServies } from "./admin.services";
 import pick from "../../../Shared/pick";
 import { adminFillterAbleFields, adminPagenationField } from "./admin.constant";
+import sendResponse from "../../../Shared/sendResponse";
+
+
 
 const getAllFromDB = async (req: Request, res: Response) => {
     const fillterData = pick(req.query, adminFillterAbleFields)
     const options = pick(req.query, adminPagenationField)
     try {
         const result = await adminServies.getAllFromDB(fillterData, options);
-        res.status(200).json({
+        sendResponse(res, {
+            statusCode: 200,
             success: true,
             message: "Admin data fetched",
             meta: result.meta,
             data: result.data
-
         })
     } catch (error: any) {
         return res.status(500).json({
@@ -28,7 +31,8 @@ const getDataByIdFromDB = async (req: Request, res: Response) => {
     const { id } = req.params
     try {
         const result = await adminServies.getDataByIdFromDB(id)
-        return res.status(200).json({
+        sendResponse(res, {
+            statusCode: 200,
             success: true,
             message: "Admin data fetch by id successfully",
             data: result
@@ -45,8 +49,9 @@ const updateDataByIdFromDB = async (req: Request, res: Response) => {
     const { id } = req.params;
     const body = req.body
     try {
-        const result = await adminServies.updateDataByIdFromDB(id,body)
-        return res.status(200).json({
+        const result = await adminServies.updateDataByIdFromDB(id, body)
+        sendResponse(res, {
+            statusCode: 200,
             success: true,
             message: "Admin data updated by id successfully",
             data: result
@@ -63,7 +68,8 @@ const deleteDataByIdFromDB = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
         const result = await adminServies.deleteDataByIdFromDB(id)
-        return res.status(200).json({
+        sendResponse(res, {
+            statusCode: 200,
             success: true,
             message: "Admin data deleted by id successfully",
             data: result
@@ -81,7 +87,8 @@ const softDeleteDataByIdFromDB = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
         const result = await adminServies.softDeleteDataByIdFromDB(id)
-        return res.status(200).json({
+        sendResponse(res, {
+            statusCode: 200,
             success: true,
             message: "Admin data deleted by id successfully",
             data: result
@@ -95,4 +102,4 @@ const softDeleteDataByIdFromDB = async (req: Request, res: Response) => {
     }
 }
 
-export const adminController = { getAllFromDB, getDataByIdFromDB, updateDataByIdFromDB,deleteDataByIdFromDB, softDeleteDataByIdFromDB }
+export const adminController = { getAllFromDB, getDataByIdFromDB, updateDataByIdFromDB, deleteDataByIdFromDB, softDeleteDataByIdFromDB }

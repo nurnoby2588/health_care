@@ -3,30 +3,12 @@ import { paginationHelper } from "../../../healper/paginationHelper";
 import prisma from "../../../Shared/prisma";
 import { adminSearchableField } from "./admin.constant"
 
-
-
 const getAllFromDB = async (params: any, options: any) => {
     const { page, limit, skip, sortBy, sortOrder } = paginationHelper.calculatePagination(options);
     //distracture params. saperate searchTerm from params
     const { searchTerm, ...filterData } = params
     // type sefty is give []
     const andCondition: Prisma.AdminWhereInput[] = []
-
-    // [
-    //             {
-    //                 name: {
-    //                     contains: params.searchTerm,
-    //                     //for case insensitive
-    //                     mode: 'insensitive'
-    //                 }
-    //             },
-    //             {
-    //                 email: {
-    //                     contains: params.searchTerm,
-    //                     mode: 'insensitive'
-    //                 }
-    //             },
-    //         ]
 
     if (params.searchTerm) {
         andCondition.push({
@@ -114,7 +96,7 @@ const deleteDataByIdFromDB = async (id: string) : Promise<Admin> => {
                 id
             }
         });
-        const userDeleteData = await transactionClient.user.delete({
+       await transactionClient.user.delete({
             where: {
                 email: adminDeleteData.email
             }
@@ -140,7 +122,7 @@ const softDeleteDataByIdFromDB = async (id: string) :Promise<Admin | null> => {
                 isDeleted: true
             }
         });
-        const userDeleteData = await transactionClient.user.update({
+        await transactionClient.user.update({
             where: {
                 email: adminDeleteData.email
             }, data: {
