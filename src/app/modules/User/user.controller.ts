@@ -9,7 +9,7 @@ const createAdmin = async (req: Request, res: Response) => {
         message: "Admin created successfully",
         data: result
     })
-  } catch (error) {
+  } catch (error : any) {
     return res.status(500).json({
         success: false,
         message: error?.name || "Something went wrong",

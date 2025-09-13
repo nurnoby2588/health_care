@@ -1,4 +1,4 @@
-import { Prisma } from "../../../generated/prisma"
+import { Admin, Prisma } from "../../../generated/prisma"
 import { paginationHelper } from "../../../healper/paginationHelper";
 import prisma from "../../../Shared/prisma";
 import { adminSearchableField } from "./admin.constant"
@@ -62,9 +62,63 @@ const getAllFromDB = async (params: any, options: any) => {
         }
 
     });
+    const total = await prisma.admin.count({
+        where: whereConditon
+    })
+    return {
+        meta: {
+            page,
+            limit,
+            total
+        },
+        data: result
+    }
+}
+const getDataByIdFromDB = async (id: string) => {
+    const result = await prisma.admin.findUnique({
+        where: {
+            id
+        }
+    })
     return result
 }
-export const adminServies = { getAllFromDB };
+const updateDataByIdFromDB = async (id: string, data: Partial<Admin>) => {
+    await prisma.admin.findUniqueOrThrow({
+        where: {
+            id
+        }
+    })
+    const result = await prisma.admin.update({
+        where: {
+            id
+        },
+        data
+    });
+    return result
+}
+
+const deleteDataByIdFromDB = async (id: string) => {
+    await prisma.admin.findUniqueOrThrow({
+        where:{
+            id
+        }
+    })
+    const result = await prisma.$transaction(async (transactionClient) => {
+        const adminDeleteData = await transactionClient.admin.delete({
+            where: {
+                id
+            }
+        });
+        const userDeleteData = await transactionClient.user.delete({
+            where: {
+                email: adminDeleteData.email
+            }
+        });
+        return adminDeleteData
+    })
+    return result
+}
+export const adminServies = { getAllFromDB, getDataByIdFromDB, updateDataByIdFromDB, deleteDataByIdFromDB };
 
 /**
  * pagination rule
