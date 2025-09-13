@@ -1,4 +1,4 @@
-import { Admin, Prisma } from "../../../generated/prisma"
+import { Admin, Prisma, UserStatus } from "../../../generated/prisma"
 import { paginationHelper } from "../../../healper/paginationHelper";
 import prisma from "../../../Shared/prisma";
 import { adminSearchableField } from "./admin.constant"
@@ -38,6 +38,9 @@ const getAllFromDB = async (params: any, options: any) => {
             }))
         })
     }
+    andCondition.push({
+        isDeleted: false
+    })
     if (Object.keys(filterData).length > 0) {
 
         andCondition.push({
@@ -74,18 +77,20 @@ const getAllFromDB = async (params: any, options: any) => {
         data: result
     }
 }
-const getDataByIdFromDB = async (id: string) => {
-    const result = await prisma.admin.findUnique({
+const getDataByIdFromDB = async (id: string) : Promise<Admin | null> => {
+    const result = await prisma.admin.findUniqueOrThrow({
         where: {
-            id
+            id,
+            isDeleted: false
         }
     })
     return result
 }
-const updateDataByIdFromDB = async (id: string, data: Partial<Admin>) => {
+const updateDataByIdFromDB = async (id: string, data: Partial<Admin>) : Promise<Admin | null> => {
     await prisma.admin.findUniqueOrThrow({
         where: {
-            id
+            id,
+            isDeleted: false
         }
     })
     const result = await prisma.admin.update({
@@ -97,9 +102,9 @@ const updateDataByIdFromDB = async (id: string, data: Partial<Admin>) => {
     return result
 }
 
-const deleteDataByIdFromDB = async (id: string) => {
+const deleteDataByIdFromDB = async (id: string) : Promise<Admin> => {
     await prisma.admin.findUniqueOrThrow({
-        where:{
+        where: {
             id
         }
     })
@@ -118,7 +123,35 @@ const deleteDataByIdFromDB = async (id: string) => {
     })
     return result
 }
-export const adminServies = { getAllFromDB, getDataByIdFromDB, updateDataByIdFromDB, deleteDataByIdFromDB };
+
+const softDeleteDataByIdFromDB = async (id: string) :Promise<Admin | null> => {
+    await prisma.admin.findUniqueOrThrow({
+        where: {
+            id,
+            isDeleted: false
+        }
+    })
+    const result = await prisma.$transaction(async (transactionClient) => {
+        const adminDeleteData = await transactionClient.admin.update({
+            where: {
+                id
+            },
+            data: {
+                isDeleted: true
+            }
+        });
+        const userDeleteData = await transactionClient.user.update({
+            where: {
+                email: adminDeleteData.email
+            }, data: {
+                status: UserStatus.DELETED
+            }
+        });
+        return adminDeleteData
+    })
+    return result
+}
+export const adminServies = { getAllFromDB, getDataByIdFromDB, updateDataByIdFromDB, deleteDataByIdFromDB, softDeleteDataByIdFromDB };
 
 /**
  * pagination rule

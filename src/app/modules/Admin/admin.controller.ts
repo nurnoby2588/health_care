@@ -77,4 +77,22 @@ const deleteDataByIdFromDB = async (req: Request, res: Response) => {
     }
 }
 
-export const adminController = { getAllFromDB, getDataByIdFromDB, updateDataByIdFromDB,deleteDataByIdFromDB }
+const softDeleteDataByIdFromDB = async (req: Request, res: Response) => {
+    const { id } = req.params;
+    try {
+        const result = await adminServies.softDeleteDataByIdFromDB(id)
+        return res.status(200).json({
+            success: true,
+            message: "Admin data deleted by id successfully",
+            data: result
+        })
+    } catch (error: any) {
+        return res.status(500).json({
+            success: false,
+            message: error?.meta.cause || "Something went wrong",
+            error: error
+        })
+    }
+}
+
+export const adminController = { getAllFromDB, getDataByIdFromDB, updateDataByIdFromDB,deleteDataByIdFromDB, softDeleteDataByIdFromDB }

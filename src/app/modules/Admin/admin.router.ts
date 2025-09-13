@@ -6,4 +6,5 @@ router.get('/', adminController.getAllFromDB)
 router.get('/:id', adminController.getDataByIdFromDB)
 router.patch('/:id', adminController.updateDataByIdFromDB)
 router.delete('/:id', adminController.deleteDataByIdFromDB)
+router.delete('/soft/:id', adminController.softDeleteDataByIdFromDB)
 export const adminRouter = router
