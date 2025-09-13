@@ -1,11 +1,12 @@
 import { Prisma, PrismaClient } from "../../../generated/prisma"
+import { adminSearchableField } from "./admin.constant"
 const prisma = new PrismaClient()
-const getAllFromDB = async (params: any) => {
+const getAllFromDB = async (params: any, options: any) => {
+    const { limit, page } = options;
     //distracture params. saperate searchTerm from params
     const { searchTerm, ...filterData } = params
     // type sefty is give []
     const andCondition: Prisma.AdminWhereInput[] = []
-    const adminSearchableFielda = ['name', 'email']
 
     // [
     //             {
@@ -25,7 +26,7 @@ const getAllFromDB = async (params: any) => {
 
     if (params.searchTerm) {
         andCondition.push({
-            OR: adminSearchableFielda.map(field => ({
+            OR: adminSearchableField.map(field => ({
                 [field]: {
                     contains: params.searchTerm,
                     mode: 'insensitive'
@@ -37,8 +38,8 @@ const getAllFromDB = async (params: any) => {
 
         andCondition.push({
             // transfer object to array using Object.keys()
-            AND:Object.keys(filterData).map(key=>({
-                [key]:{
+            AND: Object.keys(filterData).map(key => ({
+                [key]: {
                     equals: filterData[key]
                 }
             }))
@@ -49,8 +50,17 @@ const getAllFromDB = async (params: any) => {
     // whereConditon : Prisma.AdminWhereInput prisma type checking
     const whereConditon: Prisma.AdminWhereInput = { AND: andCondition }
     const result = await prisma.admin.findMany({
-        where: whereConditon
+        where: whereConditon,
+        skip: (Number(page) - 1) * limit,
+        take: Number(limit)
+
     });
     return result
 }
 export const adminServies = { getAllFromDB };
+
+/**
+ * pagination rule
+ * skip: (page-1)*limit
+ * take: limit
+*/
