@@ -1,31 +1,12 @@
-import { Prisma, PrismaClient } from "../../../generated/prisma"
+import { Prisma } from "../../../generated/prisma"
+import { paginationHelper } from "../../../healper/paginationHelper";
+import prisma from "../../../Shared/prisma";
 import { adminSearchableField } from "./admin.constant"
-const prisma = new PrismaClient()
 
-const calculatePagination = (options: {
-    page: number,
-    limit: number,
-    sortBy: string,
-    sortOrder: string
-}) => {
 
-    const page = Number(options.page) || 1
-    const limit = Number(options.limit) || 10
-    const sortBy = options.sortBy || 'createdAt'
-    const sortOrder = options.sortOrder || 'desc'
-    const skip = (page - 1) * limit
 
-    return {
-        page,
-        limit,
-        skip,
-        sortBy,
-        sortOrder
-    }
-
-}
 const getAllFromDB = async (params: any, options: any) => {
-    const { page, limit, skip, sortBy, sortOrder } = calculatePagination(options);
+    const { page, limit, skip, sortBy, sortOrder } = paginationHelper.calculatePagination(options);
     //distracture params. saperate searchTerm from params
     const { searchTerm, ...filterData } = params
     // type sefty is give []
