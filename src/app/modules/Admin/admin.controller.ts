@@ -3,6 +3,7 @@ import { adminServies } from "./admin.services";
 import pick from "../../../Shared/pick";
 import { adminFillterAbleFields, adminPagenationField } from "./admin.constant";
 import sendResponse from "../../../Shared/sendResponse";
+import status from "http-status";
 
 
 
@@ -12,7 +13,7 @@ const getAllFromDB = async (req: Request, res: Response) => {
     try {
         const result = await adminServies.getAllFromDB(fillterData, options);
         sendResponse(res, {
-            statusCode: 200,
+            statusCode: status.OK,
             success: true,
             message: "Admin data fetched",
             meta: result.meta,
@@ -88,7 +89,7 @@ const softDeleteDataByIdFromDB = async (req: Request, res: Response) => {
     try {
         const result = await adminServies.softDeleteDataByIdFromDB(id)
         sendResponse(res, {
-            statusCode: 200,
+            statusCode: status.OK,
             success: true,
             message: "Admin data deleted by id successfully",
             data: result
