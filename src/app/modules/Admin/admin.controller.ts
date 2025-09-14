@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { adminServies } from "./admin.services";
 import pick from "../../../Shared/pick";
 import { adminFillterAbleFields, adminPagenationField } from "./admin.constant";
@@ -7,7 +7,7 @@ import status from "http-status";
 
 
 
-const getAllFromDB = async (req: Request, res: Response) => {
+const getAllFromDB = async (req: Request, res: Response , next: NextFunction) => {
     const fillterData = pick(req.query, adminFillterAbleFields)
     const options = pick(req.query, adminPagenationField)
     try {
@@ -20,15 +20,11 @@ const getAllFromDB = async (req: Request, res: Response) => {
             data: result.data
         })
     } catch (error: any) {
-        return res.status(500).json({
-            success: false,
-            message: error?.name || "Something went wrong",
-            error: error
-        })
+       next(error)
     }
 }
 
-const getDataByIdFromDB = async (req: Request, res: Response) => {
+const getDataByIdFromDB = async (req: Request, res: Response , next: NextFunction) => {
     const { id } = req.params
     try {
         const result = await adminServies.getDataByIdFromDB(id)
@@ -39,14 +35,11 @@ const getDataByIdFromDB = async (req: Request, res: Response) => {
             data: result
         })
     } catch (error: any) {
-        return res.status(500).json({
-            success: false,
-            message: error?.name || "Something went wrong",
-            error: error
-        })
+        console.log("in catch")
+       next(error)
     }
 }
-const updateDataByIdFromDB = async (req: Request, res: Response) => {
+const updateDataByIdFromDB = async (req: Request, res: Response , next: NextFunction) => {
     const { id } = req.params;
     const body = req.body
     try {
@@ -58,14 +51,10 @@ const updateDataByIdFromDB = async (req: Request, res: Response) => {
             data: result
         })
     } catch (error: any) {
-        return res.status(500).json({
-            success: false,
-            message: error?.name || "Something went wrong",
-            error: error
-        })
+       next(error)
     }
 }
-const deleteDataByIdFromDB = async (req: Request, res: Response) => {
+const deleteDataByIdFromDB = async (req: Request, res: Response , next: NextFunction) => {
     const { id } = req.params;
     try {
         const result = await adminServies.deleteDataByIdFromDB(id)
@@ -76,15 +65,11 @@ const deleteDataByIdFromDB = async (req: Request, res: Response) => {
             data: result
         })
     } catch (error: any) {
-        return res.status(500).json({
-            success: false,
-            message: error?.meta.cause || "Something went wrong",
-            error: error
-        })
+         next(error)
     }
 }
 
-const softDeleteDataByIdFromDB = async (req: Request, res: Response) => {
+const softDeleteDataByIdFromDB = async (req: Request, res: Response, next: NextFunction) => {
     const { id } = req.params;
     try {
         const result = await adminServies.softDeleteDataByIdFromDB(id)
@@ -95,11 +80,7 @@ const softDeleteDataByIdFromDB = async (req: Request, res: Response) => {
             data: result
         })
     } catch (error: any) {
-        return res.status(500).json({
-            success: false,
-            message: error?.meta.cause || "Something went wrong",
-            error: error
-        })
+        next(error)
     }
 }
 
