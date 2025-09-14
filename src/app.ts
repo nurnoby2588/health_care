@@ -19,4 +19,15 @@ app.get('/', (req: Request, res: Response) => {
     res.send({ msg: "app is running" })
 })
 
+app.use((req: Request, res: Response) => {
+    res.status(status.NOT_FOUND).json({
+        success: false,
+        message: "Not Found",
+        error: {
+            path: req.originalUrl,
+            message: "The requested URL was not found on this server."
+        }
+    })
+})
+
 export default app;
