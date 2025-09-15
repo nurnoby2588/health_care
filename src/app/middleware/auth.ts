@@ -8,7 +8,8 @@ import status from "http-status"
 const auth = (...roles: string[]) => {
     return async (req: Request, res: Response, next: NextFunction) => {
         try {
-            const token = req.headers.authorization?.split(' ')[1]
+            // const token = req.headers.authorization?.split(' ')[1]
+            const token = req.cookies.accessToken
             if (!token) {
                 throw new ApiError(status.UNAUTHORIZED ,"You are not authorized, you token not found ")
             }
