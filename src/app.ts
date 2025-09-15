@@ -1,5 +1,6 @@
 import express, { Application, NextFunction, Request, Response, urlencoded } from "express";
 import cors from 'cors'
+import cookieparser from 'cookie-parser'
 import router from "./app/routes";
 import status from "http-status";
 import globalErrorHandler from "./app/middleware/globalErrorHandler";
@@ -10,6 +11,7 @@ const app: Application = express()
 app.use(cors())
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
+app.use(cookieparser())
 
 app.use('/api/v1', router)
 app.use(globalErrorHandler)

@@ -4,7 +4,7 @@ import status from "http-status"
 const globalErrorHandler = (error: any, req: Request, res: Response, next: NextFunction) => {
     res.status(status.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: error?.meta?.cause ||error?.name || "Something went wrong",
+        message: error?.message || error?.meta?.cause ||error?.name ||  "Something went wrong",
         error: error
     })
 }

@@ -4,19 +4,7 @@ import pick from "../../../Shared/pick";
 import { adminFillterAbleFields, adminPagenationField } from "./admin.constant";
 import sendResponse from "../../../Shared/sendResponse";
 import status from "http-status";
-
-const catchAsync = (fn: RequestHandler) => {
-    return async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            await fn(req, res, next)
-
-        } catch (error) {
-            console.log(error)
-            console.log(error)
-            next(error)
-        }
-    }
-}
+import catchAsync from "../../../Shared/catchAsync";
 
 
 const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
