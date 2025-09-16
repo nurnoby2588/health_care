@@ -5,6 +5,8 @@ import * as bcrypt from 'bcrypt'
 import { UserStatus } from "../../generated/prisma";
 import config from "../config";
 import { Secret } from "jsonwebtoken";
+import ApiError from "../errors/ApiError";
+import status from "http-status";
 
 const loginUser = async (payload: { email: string, password: string }) => {
     const userData = await prisma.user.findUniqueOrThrow({
@@ -16,7 +18,7 @@ const loginUser = async (payload: { email: string, password: string }) => {
 
     const match: boolean = await bcrypt.compare(payload.password, userData.password);
     if (!match) {
-        throw new Error("Password Incorect")
+        throw new ApiError(status.UNAUTHORIZED, "Password Incorect")
     }
     const data = {
         id: userData.id,
@@ -45,5 +47,33 @@ const refreshToken = async (refreshToken: string) => {
     return { accessToken, needPasswordChange: userData.needPasswordChange }
 
 }
+const changePassword = async (user: any, payload: any) => {
 
-export const AuthServices = { loginUser, refreshToken }
+    const userData = await prisma.user.findUniqueOrThrow({
+        where: {
+            id: user.id,
+            status: UserStatus.ACTIVE
+        }
+    })
+    const match: boolean = await bcrypt.compare(payload.oldPassword, userData.password);
+    if (!match) {
+        throw new ApiError(status.UNAUTHORIZED, "Password Incorect")
+    }
+    const hashedPasswod = await bcrypt.hash(payload.newPassword, 12)
+    await prisma.user.update({
+        where: {
+            id: user.id,
+            status: UserStatus.ACTIVE
+        },
+        data: {
+            password: hashedPasswod,
+            needPasswordChange: false
+        }
+    })
+    return {
+        message: "Password change successflly"
+    }
+
+}
+
+export const AuthServices = { loginUser, refreshToken, changePassword }
