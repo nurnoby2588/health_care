@@ -4,6 +4,7 @@ import { cwd } from 'process'
 import { v2 as cloudinary } from 'cloudinary';
 import ApiError from '../app/errors/ApiError';
 import fs from 'fs'
+import { ICloudinaryResponse } from '../app/interface/file';
 // Configure Cloudinary
 cloudinary.config({
   cloud_name: 'dmcsbig3a',
@@ -41,22 +42,18 @@ const CloudinaryUpload = async (filePath: any) => {
     fs.unlinkSync(filePath.path)
   }
   // Optimize delivery by resizing and applying auto-format and auto-quality
-  const optimizeUrl = cloudinary.url(filePath.filename, {
-    fetch_format: 'auto',
-    quality: 'auto'
-  });
+  // const optimizeUrl = cloudinary.url(filePath.filename, {
+  //   fetch_format: 'auto',
+  //   quality: 'auto'
+  // });
   // Transform the image: auto-crop to square aspect_ratio
-  const autoCropUrl = cloudinary.url(filePath.filename, {
-    crop: 'auto',
-    gravity: 'auto',
-    width: 500,
-    height: 500,
-  });
-  return {
-    uploadResult,
-    optimizeUrl,
-    autoCropUrl
-  }
+  // const autoCropUrl = cloudinary.url(filePath.filename, {
+  //   crop: 'auto',
+  //   gravity: 'auto',
+  //   width: 500,
+  //   height: 500,
+  // });
+  return uploadResult 
 
 }
 export const fileUploader = { upload, CloudinaryUpload }

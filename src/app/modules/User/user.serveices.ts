@@ -4,10 +4,11 @@ import prisma from "../../../Shared/prisma";
 import * as bcrypt from 'bcrypt'
 
 const createAdmin = async (req: any) => {
-    const file = req.file
+    const file  = req.file
     if (file) {
         const uploadCloudinary = await fileUploader.CloudinaryUpload(file)
-        req.body.admin.profilePhoto = uploadCloudinary.uploadResult.secure_url
+        console.log(uploadCloudinary)
+        req.body.admin.profilePhoto = uploadCloudinary.secure_url
     }
 
     const hashedPasswod = await bcrypt.hash(req.body.password, 12)
