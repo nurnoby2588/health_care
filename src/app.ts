@@ -18,7 +18,7 @@ app.use(globalErrorHandler)
 app.use((req: Request, res: Response) => {
     res.status(status.NOT_FOUND).json({
         success: false,
-        message: "Not Found",
+        message: "This path not found",
         error: {
             path: req.originalUrl,
             message: "The requested URL was not found on this server."

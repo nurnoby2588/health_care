@@ -1,7 +1,20 @@
 import multer from 'multer'
 import path from 'path'
+import { cwd } from 'process'
+import { v2 as cloudinary } from 'cloudinary';
+import ApiError from '../app/errors/ApiError';
+import fs from 'fs'
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: 'dmcsbig3a',
+  api_key: '585251334328575', // Replace with your actual API key
+  api_secret: '7eC6i6KYmNOsW9hA3GpWwDAJkfo', // Replace with your actual API secret
+});
+
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
+    // console.log(cwd())
     cb(null, path.join(process.cwd(), 'uploads'))
   },
   filename: function (req, file, cb) {
@@ -10,6 +23,40 @@ const storage = multer.diskStorage({
     cb(null, file.fieldname + '-' + uniqueSuffix + extension)
   }
 })
-
 const upload = multer({ storage: storage })
-export const fileUploader = { upload }
+
+const CloudinaryUpload = async (filePath: any) => {
+  // Upload an image
+  const uploadResult = await cloudinary.uploader
+    .upload(
+      filePath.path, {
+      public_id: filePath.filename,
+    }
+    )
+    .catch((error) => {
+      throw new ApiError(error.http_code, error.message)
+    });
+  if (uploadResult) {
+    // delete autometic aftar upload cloudinary
+    fs.unlinkSync(filePath.path)
+  }
+  // Optimize delivery by resizing and applying auto-format and auto-quality
+  const optimizeUrl = cloudinary.url(filePath.filename, {
+    fetch_format: 'auto',
+    quality: 'auto'
+  });
+  // Transform the image: auto-crop to square aspect_ratio
+  const autoCropUrl = cloudinary.url(filePath.filename, {
+    crop: 'auto',
+    gravity: 'auto',
+    width: 500,
+    height: 500,
+  });
+  return {
+    uploadResult,
+    optimizeUrl,
+    autoCropUrl
+  }
+
+}
+export const fileUploader = { upload, CloudinaryUpload }
