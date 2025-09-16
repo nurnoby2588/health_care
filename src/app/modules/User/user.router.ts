@@ -1,8 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express';
 import { userController } from './user.controller';
-import { jwtHelper } from '../../../healper/jwtHelper';
-import config from '../../config';
-import { Secret } from 'jsonwebtoken';
 import auth from '../../middleware/auth';
 import { UserRole } from '../../../generated/prisma';
 import { fileUploader } from '../../../healper/fileUploder';
@@ -17,11 +14,5 @@ router.post('/',
         return userController.createAdmin(req, res, next)
     },
 )
-
-// router.post('/', (req: Request, res: Response, next: NextFunction) => {
-//     console.log(req.body)
-//     const value = userValidation.createAdmin.parse(JSON.parse(req.body.data))
-//     console.log(value)
-// })
 
 export const userRouter = router;
