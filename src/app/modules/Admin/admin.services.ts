@@ -11,7 +11,6 @@ const getAllFromDB = async (params: IAdminFillterRequest, options: IPagination) 
     const { searchTerm, ...filterData } = params
     // type sefty is give []
     const andCondition: Prisma.AdminWhereInput[] = []
-
     if (params.searchTerm) {
         andCondition.push({
             OR: adminSearchableField.map(field => ({

@@ -6,6 +6,7 @@ import { fileUploader } from '../../../healper/fileUploder';
 import { userValidation } from './user.validation';
 const router = express.Router()
 
+router.get('/',userController.getUsersFromDB)
 router.post('/create-admin',
 
     auth(UserRole.ADMIN, UserRole.SUPER_ADMIN), fileUploader.upload.single('profilePicture'), (req: Request, res: Response, next: NextFunction) => {

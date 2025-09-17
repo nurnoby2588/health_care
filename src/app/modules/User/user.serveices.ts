@@ -1,9 +1,13 @@
 import { Request } from "express";
-import { Admin, Doctor, Patient, UserRole } from "../../../generated/prisma"
+import { Admin, Doctor, Patient, Prisma, UserRole, UserStatus } from "../../../generated/prisma"
 import { fileUploader } from "../../../healper/fileUploder";
 import prisma from "../../../Shared/prisma";
 import * as bcrypt from 'bcrypt'
 import { IFile } from "../../interface/file";
+import { searchAbleField } from "./user.constant";
+import { paginationHelper } from "../../../healper/paginationHelper";
+import { IPagination } from "../../interface/pagination";
+import { IUserFilterRequest } from "./user.interface";
 
 const createAdmin = async (req: Request): Promise<Admin> => {
     const file = req.file as IFile
@@ -84,7 +88,58 @@ const createPatient = async (req: Request): Promise<Patient> => {
     return result
 }
 
+const getUsersFromDB = async (query: IUserFilterRequest, options: IPagination) => {
+    const { searchTerm, ...filterData } = query
+    const { skip, limit, sortBy, sortOrder, page } = paginationHelper.calculatePagination(options)
+    const andCondition: Prisma.UserWhereInput[] = []
+    if (query.searchTerm) {
+        andCondition.push({
+            OR: searchAbleField.map(field => ({
+                [field]: {
+                    contains: query.searchTerm,
+                    mode: 'insensitive',
+                },
+            }))
+
+        })
+    }
+    andCondition.push({
+        role: UserRole.PATIENT,
+        status: UserStatus.ACTIVE
+    })
+
+    if (Object.keys(filterData).length > 0) {
+        andCondition.push({
+            AND: Object.keys(filterData).map(key => ({
+                [key]: {
+                    equals: (filterData as any)[key]
+                }
+            }))
+        })
+    }
+    const whereConditon: Prisma.UserWhereInput = { AND: andCondition }
+    const result = await prisma.user.findMany({
+        where: whereConditon,
+        skip,
+        take: limit,
+        orderBy: {
+            [sortBy]: sortOrder
+        }
+    })
+    const total = await prisma.user.count({
+        where: whereConditon
+    })
+    return {
+        meta: {
+            page,
+            limit,
+            total
+        },
+        data: result
+    }
+}
+
 export const userServices = {
-    createAdmin, createDoctor, createPatient
+    createAdmin, createDoctor, createPatient, getUsersFromDB
 }
 
