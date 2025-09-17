@@ -6,12 +6,19 @@ import { fileUploader } from '../../../healper/fileUploder';
 import { userValidation } from './user.validation';
 const router = express.Router()
 
-router.post('/',
+router.post('/create-admin',
 
     auth(UserRole.ADMIN, UserRole.SUPER_ADMIN), fileUploader.upload.single('profilePicture'), (req: Request, res: Response, next: NextFunction) => {
         req.body = userValidation.createAdmin.parse(JSON.parse(req.body.data))
 
         return userController.createAdmin(req, res, next)
+    },
+)
+router.post('/create-doctor',
+
+    auth(UserRole.ADMIN, UserRole.SUPER_ADMIN), fileUploader.upload.single('profilePicture'), (req: Request, res: Response, next: NextFunction) => {
+        req.body = userValidation.createDoctor.parse(JSON.parse(req.body.data))
+        return userController.createDoctor(req, res, next)
     },
 )
 
