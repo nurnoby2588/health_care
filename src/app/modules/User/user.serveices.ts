@@ -8,6 +8,7 @@ import { searchAbleField } from "./user.constant";
 import { paginationHelper } from "../../../healper/paginationHelper";
 import { IPagination } from "../../interface/pagination";
 import { IUserFilterRequest } from "./user.interface";
+import { tr } from "zod/v4/locales";
 
 const createAdmin = async (req: Request): Promise<Admin> => {
     const file = req.file as IFile
@@ -103,10 +104,10 @@ const getUsersFromDB = async (query: IUserFilterRequest, options: IPagination) =
 
         })
     }
-    andCondition.push({
-        role: UserRole.PATIENT,
-        status: UserStatus.ACTIVE
-    })
+    // andCondition.push({
+    //     role: UserRole.PATIENT,
+    //     status: UserStatus.ACTIVE
+    // })
 
     if (Object.keys(filterData).length > 0) {
         andCondition.push({
@@ -117,6 +118,11 @@ const getUsersFromDB = async (query: IUserFilterRequest, options: IPagination) =
             }))
         })
     }
+    // andCondition.push({
+    //     role:{
+    //         equals:UserRole.PATIENT
+    //     }
+    // })
     const whereConditon: Prisma.UserWhereInput = { AND: andCondition }
     const result = await prisma.user.findMany({
         where: whereConditon,
@@ -124,8 +130,21 @@ const getUsersFromDB = async (query: IUserFilterRequest, options: IPagination) =
         take: limit,
         orderBy: {
             [sortBy]: sortOrder
+        },
+        select: {
+            id: true,
+            email: true,
+            role: true,
+            status: true,
+            needPasswordChange: true,
+            createdAt: true,
+            updatedAt: true,
+            doctor: true,
+            patient: true,
+            admin: true
         }
     })
+    
     const total = await prisma.user.count({
         where: whereConditon
     })
