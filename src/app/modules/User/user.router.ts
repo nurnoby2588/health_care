@@ -6,7 +6,7 @@ import { fileUploader } from '../../../healper/fileUploder';
 import { userValidation } from './user.validation';
 const router = express.Router()
 
-router.get('/',userController.getUsersFromDB)
+router.get('/', auth(UserRole.ADMIN, UserRole.SUPER_ADMIN), userController.getUsersFromDB)
 router.post('/create-admin',
 
     auth(UserRole.ADMIN, UserRole.SUPER_ADMIN), fileUploader.upload.single('profilePicture'), (req: Request, res: Response, next: NextFunction) => {
@@ -27,5 +27,9 @@ router.post('/create-patient',
         return userController.createPatient(req, res, next)
     },
 )
-
+router.patch('/:id/status', auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),(req: Request, res: Response, next:NextFunction )=>{
+    req.body = userValidation.updatedStatus.parse(req.body)
+    return userController.changeProfileStatus(req,res,next)
+})
+router.get('/me', auth(UserRole.ADMIN, UserRole.SUPER_ADMIN),userController.myProfile)
 export const userRouter = router;

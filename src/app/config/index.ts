@@ -19,5 +19,9 @@ export default {
         port: process.env.EMAIL_SENDER_PORT,
         user: process.env.EMAIL_SENDER_USER,
         pass: process.env.EMAIL_SENDER_PASS
+    },
+     cookie:{
+        access_cookie_expire : process.env.ACCESS_COOKIE_EXPIRE_IN,
+        refersh_cookie_expire : process.env.REFRESH_COOKIE_EXPIRE_IN
     }
 }

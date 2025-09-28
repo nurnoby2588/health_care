@@ -4,13 +4,14 @@ import { AuthServices } from "./auth.services";
 import sendResponse from "../../Shared/sendResponse";
 import status from "http-status";
 import setCookie from "../../healper/cookieHelper";
+import config from "../config";
 
 
 const loginUser = catchAsync(async (req: Request, res: Response) => {
     const result = await AuthServices.loginUser(req.body);
     const { refreshToken, accessToken } = result;
-    setCookie(res, "refreshToken", refreshToken)
-    setCookie(res, "accessToken", accessToken)
+    setCookie(res, "accessToken", accessToken,Number(config.cookie.access_cookie_expire))
+    setCookie(res, "refreshToken", refreshToken,Number(config.cookie.refersh_cookie_expire))
     sendResponse(res, {
         statusCode: status.OK,
         success: true,
@@ -24,7 +25,7 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
 const refreshToken = catchAsync(async (req: Request, res: Response) => {
     const { refreshToken } = req.cookies;
     const result = await AuthServices.refreshToken(refreshToken);
-    setCookie(res,"accessToken",result.accessToken)
+    setCookie(res,"accessToken",result.accessToken,Number(config.cookie.access_cookie_expire))
     sendResponse(res, {
         statusCode: status.OK,
         success: true,
@@ -43,7 +44,7 @@ const changePassword = catchAsync(async (req: Request & { user?: any }, res: Res
 })
 const forgetPassword = catchAsync(async (req: Request, res: Response) => {
     const result = await AuthServices.forgetPassword(req.body);
-    setCookie(res, "accessToken", result.data);
+    setCookie(res, "accessToken", result.data,Number(config.cookie.access_cookie_expire));
     sendResponse(res, {
         statusCode: status.OK,
         success: true,

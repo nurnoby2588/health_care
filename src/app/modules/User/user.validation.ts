@@ -36,6 +36,8 @@ const createPatient = z.object({
         address: z.string().optional()
     })
 })
+const updatedStatus = z.object({
+    status: z.string().nonempty("Status quruired")
+})
 
-
-export const userValidation = { createAdmin, createDoctor, createPatient }
+export const userValidation = { createAdmin, createDoctor, createPatient, updatedStatus }

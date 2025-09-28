@@ -35,7 +35,7 @@ const createPatient = catchAsync(async (req: Request, res: Response, next: NextF
   })
 })
 
-const getUsersFromDB = async (req: Request, res: Response, next: NextFunction) => {
+const getUsersFromDB = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const fillterData = pick(req.query, userFilterData)
   const options = pick(req.query, userPagenationField)
   const result = await userServices.getUsersFromDB(fillterData, options)
@@ -45,6 +45,27 @@ const getUsersFromDB = async (req: Request, res: Response, next: NextFunction) =
     message: "User data fetch successfully",
     data: result
   })
-}
+})
 
-export const userController = { createAdmin, createDoctor, createPatient, getUsersFromDB }
+const changeProfileStatus = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+  const { id } = req.params
+  const result = await userServices.changeProfileStatus(id, req.body)
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Profile status changed successfully",
+    data: result
+  })
+})
+const myProfile = catchAsync(async (req: Request&{user?:any}, res: Response, next: NextFunction) => {
+  const user = req.user
+  const result = await userServices.myProfile(user)
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "My profile fetched successfully",
+    data: result
+  })
+})
+
+export const userController = { createAdmin, createDoctor, createPatient, getUsersFromDB, changeProfileStatus, myProfile };
